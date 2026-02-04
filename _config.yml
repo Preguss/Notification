@@ -1,0 +1,4 @@
+future: true
+lsi: false
+sass:
+  sass_dir: _sass
