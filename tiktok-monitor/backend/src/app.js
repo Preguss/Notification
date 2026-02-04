@@ -83,25 +83,38 @@ app.use('/api/notifications', notificationRoutes);
 
 // Servir arquivos estáticos do React
 // Tenta múltiplos caminhos possíveis (local vs Render)
-let distPath = path.resolve(__dirname, '../../frontend/dist');
-if (!fs.existsSync(distPath)) {
-  distPath = path.resolve(process.cwd(), 'frontend/dist');
-}
-if (!fs.existsSync(distPath)) {
-  distPath = path.resolve(process.cwd(), '../frontend/dist');
+let distPath = null;
+const pathsToTry = [
+  path.resolve(__dirname, '../../frontend/dist'),
+  path.resolve(process.cwd(), 'frontend/dist'),
+  path.resolve(process.cwd(), '../frontend/dist'),
+  path.resolve(process.cwd(), 'src/tiktok-monitor/frontend/dist'),
+  path.resolve(process.cwd(), 'tiktok-monitor/frontend/dist'),
+];
+
+for (const tryPath of pathsToTry) {
+  if (fs.existsSync(tryPath)) {
+    distPath = tryPath;
+    console.log('✅ Encontrado dist em:', distPath);
+    break;
+  }
 }
 
-console.log('📁 Servindo arquivos estáticos de:', distPath);
+if (!distPath) {
+  console.warn('⚠️ Nenhum diretório dist encontrado. Paths procurados:', pathsToTry);
+  distPath = pathsToTry[0]; // Usa o primeiro como fallback
+}
+
 app.use(express.static(distPath));
 
 // SPA fallback - servir index.html para todas as rotas não encontradas
 app.get('*', (req, res) => {
   const indexPath = path.join(distPath, 'index.html');
-  console.log('🎯 Tentando servir:', indexPath);
+  console.log('🎯 Tentando servir index.html:', indexPath);
   res.sendFile(indexPath, (err) => {
     if (err) {
-      console.error('❌ Erro ao servir arquivo:', err);
-      res.status(500).send('Erro ao carregar aplicação');
+      console.error('❌ Erro ao servir arquivo:', err.message);
+      res.status(500).send('Erro ao carregar aplicação. Arquivo não encontrado: ' + indexPath);
     }
   });
 });
