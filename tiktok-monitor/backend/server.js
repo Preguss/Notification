@@ -1,31 +1,10 @@
 import app from './src/app.js';
 import dotenv from 'dotenv';
-import { execSync } from 'child_process';
-import path from 'path';
-import fs from 'fs';
-import { fileURLToPath } from 'url';
 
 dotenv.config();
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT || 5000;
 const ENV = process.env.NODE_ENV || 'development';
-
-// Compilar frontend se não existir dist
-const distPath = path.resolve(__dirname, '../frontend/dist');
-if (!fs.existsSync(distPath)) {
-  console.log('📦 Compilando frontend React...');
-  try {
-    const frontendDir = path.resolve(__dirname, '../frontend');
-    if (fs.existsSync(frontendDir)) {
-      execSync('npm install', { cwd: frontendDir, stdio: 'inherit' });
-      execSync('npm run build', { cwd: frontendDir, stdio: 'inherit' });
-      console.log('✅ Frontend compilado com sucesso!');
-    }
-  } catch (error) {
-    console.error('⚠️ Erro ao compilar frontend:', error.message);
-  }
-}
 
 // Tratamento de erros não capturados
 process.on('uncaughtException', (error) => {
