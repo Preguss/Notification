@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import connectDB from './config/database.js';
 import startMonitoringScheduler from './utils/scheduler.js';
 import accountRoutes from './routes/accountRoutes.js';
@@ -9,6 +11,7 @@ import notificationRoutes from './routes/notificationRoutes.js';
 dotenv.config();
 
 const app = express();
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Middleware CORS
 const allowedOrigins = [
@@ -92,14 +95,13 @@ app.get('/', (req, res) => {
 app.use('/api/accounts', accountRoutes);
 app.use('/api/notifications', notificationRoutes);
 
-// 404 handler
-app.use((req, res) => {
-  res.status(404).json({
-    error: 'Endpoint não encontrado',
-    path: req.path,
-    method: req.method,
-    timestamp: new Date().toISOString()
-  });
+// Servir arquivos estáticos do React
+const distPath = path.join(__dirname, '../../frontend/dist');
+app.use(express.static(distPath));
+
+// SPA fallback - servir index.html para todas as rotas não encontradas
+app.get('*', (req, res) => {
+  res.sendFile(path.join(distPath, 'index.html'));
 });
 
 // Error handler
