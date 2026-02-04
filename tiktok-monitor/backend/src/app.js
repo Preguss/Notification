@@ -76,22 +76,7 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Root endpoint
-app.get('/', (req, res) => {
-  res.json({
-    message: '🎵 TikTok Monitor API',
-    version: '1.0.0',
-    status: 'running',
-    database: dbStatus,
-    endpoints: {
-      health: '/health',
-      accounts: '/api/accounts',
-      notifications: '/api/notifications'
-    }
-  });
-});
-
-// Rotas API
+// Rotas API (especificar antes do static)
 app.use('/api/accounts', accountRoutes);
 app.use('/api/notifications', notificationRoutes);
 
@@ -99,9 +84,10 @@ app.use('/api/notifications', notificationRoutes);
 const distPath = path.join(__dirname, '../../frontend/dist');
 app.use(express.static(distPath));
 
-// SPA fallback - servir index.html para todas as rotas não encontradas
+// SPA fallback - servir index.html para todas as rotas não encontradas (ANTES do JSON endpoint!)
 app.get('*', (req, res) => {
-  res.sendFile(path.join(distPath, 'index.html'));
+  const indexPath = path.join(distPath, 'index.html');
+  res.sendFile(indexPath);
 });
 
 // Error handler
