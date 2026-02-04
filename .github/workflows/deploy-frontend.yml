@@ -28,10 +28,5 @@ jobs:
       run: |
         cd tiktok-monitor/frontend
         npm run build
-    
-    - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./tiktok-monitor/frontend/dist
-        destination_dir: tiktok-monitor
+      env:
+        VITE_API_URL: https://notification-9q7u.onrender.com
