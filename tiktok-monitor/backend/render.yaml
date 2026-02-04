@@ -2,15 +2,38 @@ services:
   - type: web
     name: tiktok-monitor-backend
     env: node
-    region: frankfurt
     plan: free
-    buildCommand: npm install
+    
+    # GitHub
+    repo: https://github.com/Preguss/Notification
+    branch: master
+    rootDir: tiktok-monitor/backend
+    
+    # Build & Start
+    buildCommand: npm ci && npm run build
     startCommand: npm start
+    
+    # Health
     healthCheckPath: /health
+    healthCheckTimeout: 30
+    
+    # Variáveis de Ambiente
     envVars:
       - key: NODE_ENV
         value: production
+      
       - key: PORT
         value: 10000
+      
       - key: MONGODB_URI
         sync: false
+      
+      - key: LOG_LEVEL
+        value: info
+    
+    # Timeout
+    serviceTimeout: 120
+    
+    # Recursos
+    numInstances: 1
+    maxInstanceAge: 2592000
