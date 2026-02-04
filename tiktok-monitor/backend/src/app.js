@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import connectDB from './config/database.js';
 import startMonitoringScheduler from './utils/scheduler.js';
@@ -81,13 +82,28 @@ app.use('/api/accounts', accountRoutes);
 app.use('/api/notifications', notificationRoutes);
 
 // Servir arquivos estáticos do React
-const distPath = path.join(__dirname, '../../frontend/dist');
+// Tenta múltiplos caminhos possíveis (local vs Render)
+let distPath = path.resolve(__dirname, '../../frontend/dist');
+if (!fs.existsSync(distPath)) {
+  distPath = path.resolve(process.cwd(), 'frontend/dist');
+}
+if (!fs.existsSync(distPath)) {
+  distPath = path.resolve(process.cwd(), '../frontend/dist');
+}
+
+console.log('📁 Servindo arquivos estáticos de:', distPath);
 app.use(express.static(distPath));
 
-// SPA fallback - servir index.html para todas as rotas não encontradas (ANTES do JSON endpoint!)
+// SPA fallback - servir index.html para todas as rotas não encontradas
 app.get('*', (req, res) => {
   const indexPath = path.join(distPath, 'index.html');
-  res.sendFile(indexPath);
+  console.log('🎯 Tentando servir:', indexPath);
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      console.error('❌ Erro ao servir arquivo:', err);
+      res.status(500).send('Erro ao carregar aplicação');
+    }
+  });
 });
 
 // Error handler
