@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import './App.css'
+import AccountForm from './components/AccountForm'
 import AccountList from './components/AccountList'
 import NotificationCenter from './components/NotificationCenter'
 
@@ -14,7 +15,7 @@ function App() {
 
   const checkServer = async () => {
     try {
-      const response = await fetch('/api/health')
+      const response = await fetch('/health')
       if (response.ok) {
         setServerStatus('connected')
       } else {
@@ -42,6 +43,7 @@ function App() {
         <div className="container">
           <div className="layout">
             <div className="main-content">
+              <AccountForm />
               <AccountList />
             </div>
             <div className="sidebar">
